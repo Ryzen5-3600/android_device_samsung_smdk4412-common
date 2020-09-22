@@ -16,6 +16,8 @@
 
 package org.lineageos.settings.device;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -27,13 +29,16 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.net.wifi.WifiManager;
+
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Log;
 
 import java.lang.System;
+import java.lang.Thread;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.List;
@@ -50,15 +55,20 @@ public class SamsungDozeService extends Service {
 
     private static final int POCKET_DELTA_NS = 1000 * 1000 * 1000;
 
+    private AlarmManager mAlarmManager;
     private Context mContext;
     private SamsungProximitySensor mSensor;
     private PowerManager mPowerManager;
     private WifiManager mWifiManager;
+    private PendingIntent mPendingIntent;
 
     private boolean mHandwaveGestureEnabled = false;
     private boolean mPocketGestureEnabled = false;
     private boolean mProximityWakeEnabled = false;
     private int mIsWifiEnabledByUser = 0;
+    private long mWifiInitialWakeupInterval = 5 * 60 * 1000;
+    private long mWifiWakeupInterval = 10 * 60 * 1000;
+    private long mWifiEnableInterval = 20 * 1000;
 
     class SamsungProximitySensor implements SensorEventListener {
         private SensorManager mSensorManager;
@@ -136,6 +146,18 @@ public class SamsungDozeService extends Service {
         }
     }
 
+    public void toggleWifi() {
+        Log.d(TAG, "Enabling wifi");
+        setWifiState(true);
+        try {
+            Thread.sleep(mWifiEnableInterval);
+        } catch (InterruptedException e) {
+            Log.d(TAG, "Caught an interrupt while sleeping", e);
+        }
+        Log.d(TAG, "Disabling wifi");
+        setWifiState(false);
+    }
+
     @Override
     public void onCreate() {
         if (DEBUG) Log.d(TAG, "SamsungDozeService Started");
@@ -144,6 +166,7 @@ public class SamsungDozeService extends Service {
         mSensor = new SamsungProximitySensor(mContext);
         mWifiManager = (WifiManager)getSystemService(Context.WIFI_SERVICE);
         mIsWifiEnabledByUser = getWifiState();
+        mAlarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
 
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         loadPreferences(sharedPrefs);
@@ -184,10 +207,22 @@ public class SamsungDozeService extends Service {
         if (DEBUG) Log.d(TAG, "Display on");
         mSensor.disable();
 
+        try {
+
         if (mIsWifiEnabledByUser == WifiManager.WIFI_STATE_ENABLED) {
             Log.d(TAG, "Turning Wifi on");
+
+            Intent intent = new Intent(mContext, AlarmReceiver.class);
+            mPendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_NO_CREATE);
+            if (mPendingIntent != null && mAlarmManager != null) {
+                mAlarmManager.cancel(mPendingIntent);
+            }
             setWifiState(true);
         }
+        } catch (Exception e) {
+            Log.e(TAG, "Caught an exception while display off", e);
+        }
+
     }
 
     private void onDisplayOff() {
@@ -196,10 +231,24 @@ public class SamsungDozeService extends Service {
 
         mIsWifiEnabledByUser = getWifiState();
 
+        try {
+
         if (mIsWifiEnabledByUser == WifiManager.WIFI_STATE_ENABLED) {
             Log.d(TAG, "Turning Wifi off");
+
+            //mPendingIntent = PendingIntent.getBroadcast(mContext, 0, mIntent, 0);
+            Intent intent = new Intent(mContext, AlarmReceiver.class);
+            mPendingIntent = PendingIntent.getService(this, 0, intent, 0);
+            mAlarmManager.setInexactRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime() + mWifiInitialWakeupInterval,
+                mWifiWakeupInterval, mPendingIntent);
             setWifiState(false);
         }
+
+        } catch (Exception e) {
+            Log.e(TAG, "Caught an exception while display off", e);
+        }
+
     }
 
     private void loadPreferences(SharedPreferences sharedPreferences) {
