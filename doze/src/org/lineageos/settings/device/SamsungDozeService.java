@@ -26,6 +26,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.net.wifi.WifiManager;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
@@ -52,10 +53,12 @@ public class SamsungDozeService extends Service {
     private Context mContext;
     private SamsungProximitySensor mSensor;
     private PowerManager mPowerManager;
+    private WifiManager mWifiManager;
 
     private boolean mHandwaveGestureEnabled = false;
     private boolean mPocketGestureEnabled = false;
     private boolean mProximityWakeEnabled = false;
+    private int mIsWifiEnabledByUser = 0;
 
     class SamsungProximitySensor implements SensorEventListener {
         private SensorManager mSensorManager;
@@ -115,12 +118,33 @@ public class SamsungDozeService extends Service {
         }
     }
 
+    private int getWifiState() {
+        try {
+            return mWifiManager.getWifiState();
+        } catch (Exception e) {
+            Log.e(TAG, "Caught an exception while getting wifi state", e);
+        }
+
+        return 0;
+    }
+
+    private void setWifiState(boolean state) {
+        try {
+            mWifiManager.setWifiEnabled(state);
+        } catch (Exception e) {
+            Log.e(TAG, "Caught an exception while setting wifi state", e);
+        }
+    }
+
     @Override
     public void onCreate() {
         if (DEBUG) Log.d(TAG, "SamsungDozeService Started");
         mContext = this;
         mPowerManager = (PowerManager)getSystemService(Context.POWER_SERVICE);
         mSensor = new SamsungProximitySensor(mContext);
+        mWifiManager = (WifiManager)getSystemService(Context.WIFI_SERVICE);
+        mIsWifiEnabledByUser = getWifiState();
+
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         loadPreferences(sharedPrefs);
         sharedPrefs.registerOnSharedPreferenceChangeListener(mPrefListener);
@@ -159,11 +183,23 @@ public class SamsungDozeService extends Service {
     private void onDisplayOn() {
         if (DEBUG) Log.d(TAG, "Display on");
         mSensor.disable();
+
+        if (mIsWifiEnabledByUser == WifiManager.WIFI_STATE_ENABLED) {
+            Log.d(TAG, "Turning Wifi on");
+            setWifiState(true);
+        }
     }
 
     private void onDisplayOff() {
         if (DEBUG) Log.d(TAG, "Display off");
         mSensor.testAndEnable();
+
+        mIsWifiEnabledByUser = getWifiState();
+
+        if (mIsWifiEnabledByUser == WifiManager.WIFI_STATE_ENABLED) {
+            Log.d(TAG, "Turning Wifi off");
+            setWifiState(false);
+        }
     }
 
     private void loadPreferences(SharedPreferences sharedPreferences) {
