@@ -61,11 +61,6 @@ PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/restart_rild.sh:system/vendor/bin/restart_rild.sh \
     $(LOCAL_PATH)/configs/rild_restart.rc:system/vendor/etc/init/rild_restart.rc
 
-# Gps
-PRODUCT_COPY_FILES += \
-    $(COMMON_PATH)/configs/gps.conf:system/etc/gps.conf \
-    $(COMMON_PATH)/configs/gps_debug.conf:$(TARGET_COPY_OUT_SYSTEM)/etc/gps_debug.conf
-
 # USB
 PRODUCT_PACKAGES += \
     android.hardware.usb@1.0-service.basic
@@ -123,9 +118,6 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
 	android.hardware.usb@1.0-impl \
 	android.hardware.usb@1.0-service
-
-PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/configs/mediaserver.rc:system/etc/init/mediaserver.rc
 
 # Charger
 PRODUCT_PACKAGES += \
@@ -223,10 +215,6 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.wifi.xml:system/etc/permissions/android.hardware.wifi.xml \
     frameworks/native/data/etc/android.software.sip.voip.xml:system/etc/permissions/android.software.sip.voip.xml \
     frameworks/native/data/etc/android.software.sip.xml:system/etc/permissions/android.software.sip.xml
-
-# Feature live wallpaper
-PRODUCT_COPY_FILES += \
-    packages/wallpapers/LivePicker/android.software.live_wallpaper.xml:system/etc/permissions/android.software.live_wallpaper.xml
 
 PRODUCT_TAGS += dalvik.gc.type-precise
 
