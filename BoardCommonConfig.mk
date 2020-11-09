@@ -179,7 +179,7 @@ GREEN_LED_PATH := /sys/class/leds/led_g/brightness
 BLUE_LED_PATH := /sys/class/leds/led_b/brightness
 BACKLIGHT_PATH := /sys/class/backlight/panel/brightness
 
-#SELINUX_IGNORE_NEVERALLOWS := true
+SELINUX_IGNORE_NEVERALLOWS := true
 
 # LPM Battery Percentage
 BOARD_CHARGER_SHOW_PERCENTAGE := true
