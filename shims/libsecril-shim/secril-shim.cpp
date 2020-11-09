@@ -66,21 +66,26 @@ static int
 decodeVoiceRadioTechnology (RIL_RadioState radioState) {
     switch (radioState) {
         case RADIO_STATE_SIM_NOT_READY:
+            break;
         case RADIO_STATE_SIM_LOCKED_OR_ABSENT:
+            break;
         case RADIO_STATE_SIM_READY:
             return RADIO_TECH_UMTS;
-
         case RADIO_STATE_RUIM_NOT_READY:
+            break;
         case RADIO_STATE_RUIM_READY:
+            break;
         case RADIO_STATE_RUIM_LOCKED_OR_ABSENT:
+            break;
         case RADIO_STATE_NV_NOT_READY:
+            break;
         case RADIO_STATE_NV_READY:
             return RADIO_TECH_1xRTT;
-
         default:
             RLOGD("decodeVoiceRadioTechnology: Invoked with incorrect RadioState");
             return -1;
     }
+	return -1;
 }
 
 static void OnRequestGetCellInfoList(int request, void *data, size_t datalen, RIL_Token t) {
@@ -125,14 +130,20 @@ static int
 decodeCdmaSubscriptionSource (RIL_RadioState radioState) {
     switch (radioState) {
         case RADIO_STATE_SIM_NOT_READY:
+            break;
         case RADIO_STATE_SIM_LOCKED_OR_ABSENT:
+            break;
         case RADIO_STATE_SIM_READY:
+            break;
         case RADIO_STATE_RUIM_NOT_READY:
+            break;
         case RADIO_STATE_RUIM_READY:
+            break;
         case RADIO_STATE_RUIM_LOCKED_OR_ABSENT:
             return CDMA_SUBSCRIPTION_SOURCE_RUIM_SIM;
 
         case RADIO_STATE_NV_NOT_READY:
+            break;
         case RADIO_STATE_NV_READY:
             return CDMA_SUBSCRIPTION_SOURCE_NV;
 
@@ -140,6 +151,7 @@ decodeCdmaSubscriptionSource (RIL_RadioState radioState) {
             RLOGD("decodeCdmaSubscriptionSource: Invoked with incorrect RadioState");
             return -1;
     }
+    return -1;
 }
 
 static void onRequestCdmaGetSubscriptionSource(int request, void *data, size_t datalen, RIL_Token t) {
@@ -206,16 +218,23 @@ static void onRequestUnsupportedRequest(int request, void *data, size_t datalen,
 static bool is3gpp2(int radioTech) {
     switch (radioTech) {
         case RADIO_TECH_IS95A:
+        break;
         case RADIO_TECH_IS95B:
+        break;
         case RADIO_TECH_1xRTT:
+        break;
         case RADIO_TECH_EVDO_0:
+        break;
         case RADIO_TECH_EVDO_A:
+        break;
         case RADIO_TECH_EVDO_B:
+        break;
         case RADIO_TECH_EHRPD:
             return true;
         default:
             return false;
     }
+    return false;
 }
 
 static int
@@ -223,19 +242,25 @@ decodeSimStatus (RIL_RadioState radioState) {
    switch (radioState) {
        case RADIO_STATE_SIM_NOT_READY:
            RLOGE("%s: radioState=RADIO_STATE_SIM_NOT_READY", __func__);
+       break;
        case RADIO_STATE_RUIM_NOT_READY:
            RLOGE("%s: radioState=RADIO_STATE_RUIM_NOT_READY", __func__);
+       break;
        case RADIO_STATE_NV_NOT_READY:
            RLOGE("%s: radioState=RADIO_STATE_NV_NOT_READY", __func__);
+       break;
        case RADIO_STATE_NV_READY:
            RLOGE("%s: radioState=RADIO_STATE_NV_READY", __func__);
            return -1;
        case RADIO_STATE_SIM_LOCKED_OR_ABSENT:
            RLOGE("%s: radioState=RADIO_STATE_SIM_LOCKED_OR_ABSENT", __func__);
+       break;
        case RADIO_STATE_SIM_READY:
            RLOGE("%s: radioState=RADIO_STATE_SIM_READY", __func__);
+       break;
        case RADIO_STATE_RUIM_READY:
            RLOGE("%s: radioState=RADIO_STATE_RUIM_READY", __func__);
+       break;
        case RADIO_STATE_RUIM_LOCKED_OR_ABSENT:
            RLOGE("%s: radioState=RADIO_STATE_RUIM_LOCKED_OR_ABSENT", __func__);
            return radioState;
@@ -243,6 +268,7 @@ decodeSimStatus (RIL_RadioState radioState) {
            RLOGD("decodeSimStatus: Invoked with incorrect RadioState");
            return -1;
    }
+   return -1;
 }
 
 static RIL_RadioState
@@ -363,24 +389,43 @@ static void onRequestShim(int request, void *data, size_t datalen, RIL_Token t)
 			}
 		/* The following requests were introduced post-4.3. */
 		case RIL_REQUEST_SIM_TRANSMIT_APDU_BASIC:
+            break;
 		case RIL_REQUEST_SIM_OPEN_CHANNEL: /* !!! */
+            break;
 		case RIL_REQUEST_SIM_CLOSE_CHANNEL:
+            break;
 		case RIL_REQUEST_SIM_TRANSMIT_APDU_CHANNEL:
+            break;
 		case RIL_REQUEST_NV_READ_ITEM:
+                break;
 		case RIL_REQUEST_NV_WRITE_ITEM:
+            break;
 		case RIL_REQUEST_NV_WRITE_CDMA_PRL:
+            break;
 		case RIL_REQUEST_NV_RESET_CONFIG:
+            break;
 		case RIL_REQUEST_SET_UICC_SUBSCRIPTION:
+            break;
 		case RIL_REQUEST_ALLOW_DATA:
+            break;
 		case RIL_REQUEST_GET_HARDWARE_CONFIG:
+            break;
 		case RIL_REQUEST_SIM_AUTHENTICATION:
+            break;
 		case RIL_REQUEST_GET_DC_RT_INFO:
+            break;
 		case RIL_REQUEST_SET_DC_RT_INFO_RATE:
+            break;
 		case RIL_REQUEST_SET_DATA_PROFILE:
+            break;
 		case RIL_REQUEST_SHUTDOWN: /* TODO: Is there something we can do for RIL_REQUEST_SHUTDOWN ? */
+            break;
 		case RIL_REQUEST_SET_RADIO_CAPABILITY:
+            break;
 		case RIL_REQUEST_START_LCE:
+            break;
 		case RIL_REQUEST_STOP_LCE:
+            break;
 		case RIL_REQUEST_PULL_LCEDATA:
 			onRequestUnsupportedRequest(request, data, datalen, t);
 			return;
